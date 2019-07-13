@@ -1,3 +1,5 @@
+{-# LANGUAGE ScopedTypeVariables #-}
+
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Data.LargeWord
@@ -20,6 +22,8 @@ import Data.Word
 import Data.Bits
 import Numeric
 import Data.Char
+import Data.Proxy(Proxy(Proxy))
+import Data.Serializer(Serializable(put), SizedSerializable(size))
 
 -- Keys have certain capabilities.
 
@@ -145,3 +149,9 @@ type Word160 = LargeKey Word32 Word128
 type Word192 = LargeKey Word64 Word128
 type Word224 = LargeKey Word32 Word192
 type Word256 = LargeKey Word64 Word192
+
+instance (Serializable a, Serializable b) => Serializable (LargeKey a b) where
+    put (LargeKey a b) = put a <> put b
+
+instance (SizedSerializable a, SizedSerializable b) => SizedSerializable (LargeKey a b) where
+    size Proxy = size (Proxy :: Proxy a) + size (Proxy :: Proxy b)
